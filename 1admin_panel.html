@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>এডমিন ম্যানেজমেন্ট পোর্টাল</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        adminPrimary: '#0f172a',
+                        brandAccent: '#0d9488'
+                    },
+                    fontFamily: {
+                        sans: ['Hind Siliguri', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #0f172a; color: #f1f5f9; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-teal-600 p-2.5 rounded-xl text-white">
+                    <i class="fa-solid fa-user-gear text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">এডমিন সেন্ট্রাল পোর্টাল</h1>
+                    <p class="text-xs text-teal-400">রিয়েলটাইম ডাটাবেস ও ডকুমেন্ট কন্ট্রোল</p>
+                </div>
+            </div>
+            
+            <button onclick="openModal()" class="bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-base"></i> ম্যানুয়াল কেস যোগ করুন
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-bold uppercase">মোট কেস ফাইল</p>
+                    <h3 id="totalCases" class="text-2xl font-black text-white mt-1">০</h3>
+                </div>
+                <div class="p-3 bg-teal-500/20 text-teal-400 rounded-xl"><i class="fa-solid fa-folder-open text-xl"></i></div>
+            </div>
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-bold uppercase">মোট উদ্ধারকৃত পরিমাণ</p>
+                    <h3 id="totalWinAmount" class="text-2xl font-black text-emerald-400 mt-1">৳০</h3>
+                </div>
+                <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl"><i class="fa-solid fa-money-bill-wave text-xl"></i></div>
+            </div>
+            <div class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-bold uppercase">প্রসেসিং সার্ভিস ফি</p>
+                    <h3 id="totalFees" class="text-2xl font-black text-amber-400 mt-1">৳০</h3>
+                </div>
+                <div class="p-3 bg-amber-500/20 text-amber-400 rounded-xl"><i class="fa-solid fa-hand-holding-dollar text-xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Cases Table Section -->
+        <div class="bg-slate-800/90 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-teal-400"></i> সকল ইউজার তথ্য ও কেস তালিকা
+                </h3>
+                <input type="text" id="adminSearch" onkeyup="filterAdminTable()" placeholder="নাম বা নম্বরে সার্চ দিন..." class="px-3.5 py-1.5 bg-slate-900 text-xs text-white rounded-xl border border-slate-600 focus:outline-none w-full sm:w-64">
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-900/80 uppercase font-bold text-slate-400 border-b border-slate-700">
+                        <tr>
+                            <th class="p-4">আইডি ও রেফারেন্স</th>
+                            <th class="p-4">ব্যবহারকারী ও একাউন্ট</th>
+                            <th class="p-4">অবস্থান ও ব্যাংক</th>
+                            <th class="p-4">গেম ও উইন</th>
+                            <th class="p-4">চার্জ ফি</th>
+                            <th class="p-4">সংযুক্ত ডকুমেন্ট</th>
+                            <th class="p-4">স্ট্যাটাস</th>
+                            <th class="p-4 text-center">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="caseTableBody" class="divide-y divide-slate-700/60">
+                        <tr>
+                            <td colspan="8" class="p-6 text-center text-slate-500">ডাটাবেস সিঙ্ক হচ্ছে...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form -->
+    <div id="caseModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/90 sticky top-0 z-10">
+                <h3 id="modalTitle" class="text-base font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-teal-400"></i> নতুন কেস ফর্ম
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl p-1">&times;</button>
+            </div>
+
+            <form id="caseForm" onsubmit="saveCaseForm(event)" class="p-6 space-y-4">
+                <input type="hidden" id="caseKey">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">ইউজারের নাম *</label>
+                        <input type="text" id="applicantName" required placeholder="যেমন: মো: রফিকুল ইসলাম" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">একাউন্ট / মোবাইল নম্বর *</label>
+                        <input type="text" id="accountNumber" required placeholder="যেমন: ০১৭XXXXXXXX" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-teal-400 mb-1">ইউজারের অবস্থান / দেশ *</label>
+                        <input type="text" id="country" required placeholder="যেমন: বাংলাদেশ / সৌদি আরব" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-teal-400 mb-1">ব্যাংকের নাম *</label>
+                        <input type="text" id="bankName" required placeholder="যেমন: ডাচ বাংলা / বিকাশ" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">রেফারেন্স নম্বর *</label>
+                        <input type="text" id="refNumber" required placeholder="REF-9941" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">এপ্লিকেশন আইডি *</label>
+                        <input type="text" id="appId" required placeholder="APP-2026-88" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">গেমের নাম *</label>
+                        <input type="text" id="gameName" required placeholder="যেমন: Thai Lottery" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">উইন টাকা *</label>
+                        <input type="number" id="winAmount" required placeholder="৫০০০০" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">প্রসেসিং Charge Fee *</label>
+                        <input type="number" id="chargeFee" required placeholder="২৫০০" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">টাকা দেওয়ার শেষ তারিখ *</label>
+                        <input type="date" id="lastDate" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">সম্ভাব্য তোলার তারিখ *</label>
+                        <input type="date" id="expectedDate" required class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">বর্তমান পরিস্থিতি / স্ট্যাটাস *</label>
+                        <select id="status" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500 font-semibold">
+                            <option value="ভেরিফিকেশন চলছে">ভেরিফিকেশন চলছে</option>
+                            <option value="প্রসেসিং চলছে">প্রসেসিং চলছে</option>
+                            <option value="চার্জ ফি পেন্ডিং">চার্জ ফি পেন্ডিং</option>
+                            <option value="টাকা ব্যাংক স্টপ করা">টাকা ব্যাংক স্টপ করা</option>
+                            <option value="উদ্ধার সম্পন্ন">উদ্ধার সম্পন্ন (Approved)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- NEW FIELD: Document/Image URL -->
+                <div>
+                    <label class="block text-xs font-bold text-emerald-400 mb-1">ডকুমেন্ট / ছবি / প্রুফ ফাইল লিংক (Image or PDF URL)</label>
+                    <input type="url" id="docUrl" placeholder="https://example.com/document-proof.jpg" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500">
+                    <span class="text-[10px] text-slate-400 mt-0.5 block">এখানে কোনো ছবির ডিরেক্ট লিংক অথবা ড্রাইভ/পিডিএফ ফাইল লিংক দিতে পারেন যা ইউজার দেখতে পাবে।</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-teal-400 mb-1">দিকনির্দেশনা / এডমিন নোটিশ *</label>
+                    <textarea id="notice" rows="3" placeholder="যেমন: নির্ধারিত চার্জ পরিশোধ করার পর ব্যাংক ট্র্যান্সফার করা হবে।" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs">বাতিল</button>
+                    <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg">ডাটাবেসে সেভ করুন</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        <p>© 2026 Admin Management Portal.</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8rU4crfabgQ3I3552QFb_28Ks44sCQ34",
+            authDomain: "game-win-amount.firebaseapp.com",
+            databaseURL: "https://game-win-amount-default-rtdb.firebaseio.com",
+            projectId: "game-win-amount",
+            storageBucket: "game-win-amount.firebasestorage.app",
+            messagingSenderId: "22052414695",
+            appId: "1:22052414695:web:d1513b2b9617dc163cee42",
+            measurementId: "G-0WTGS751KV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let casesCache = [];
+
+        onValue(ref(db, 'cases'), (snapshot) => {
+            const data = snapshot.val();
+            casesCache = [];
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    casesCache.push({ key, ...data[key] });
+                });
+            }
+            renderTable(casesCache);
+            updateDashboardCards(casesCache);
+        });
+
+        function updateDashboardCards(data) {
+            document.getElementById('totalCases').innerText = data.length;
+            const totalWin = data.reduce((acc, c) => acc + Number(c.winAmount || 0), 0);
+            const totalFees = data.reduce((acc, c) => acc + Number(c.chargeFee || 0), 0);
+
+            document.getElementById('totalWinAmount').innerText = '৳' + totalWin.toLocaleString('bn-BD');
+            document.getElementById('totalFees').innerText = '৳' + totalFees.toLocaleString('bn-BD');
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('caseTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">কোনো ফাইল যুক্ত করা হয়নি।</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-4 font-mono font-bold text-teal-400">
+                        ${item.appId || 'N/A'}<br>
+                        <span class="text-[10px] text-slate-500">Ref: ${item.refNumber || 'N/A'}</span>
+                    </td>
+                    <td class="p-4 font-bold text-white">
+                        ${item.applicantName || 'অজ্ঞাত'}
+                        <div class="text-[11px] font-normal text-slate-400"><i class="fa-solid fa-phone text-slate-500 mr-1"></i>${item.accountNumber || 'N/A'}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="text-xs font-bold text-emerald-400">${item.country || 'বাংলাদেশ'}</span><br>
+                        <span class="text-[11px] text-amber-300 font-semibold">${item.bankName || 'ব্যাংক উল্লেখ নেই'}</span>
+                    </td>
+                    <td class="p-4">
+                        ${item.gameName || 'N/A'}<br>
+                        <span class="font-bold text-emerald-400">৳${Number(item.winAmount || 0).toLocaleString('bn-BD')}</span>
+                    </td>
+                    <td class="p-4 font-bold text-amber-400">৳${Number(item.chargeFee || 0).toLocaleString('bn-BD')}</td>
+                    <td class="p-4">
+                        ${item.docUrl ? `<a href="${item.docUrl}" target="_blank" class="inline-flex items-center gap-1 text-teal-400 hover:underline text-xs"><i class="fa-solid fa-file-image"></i> ডকুমেন্ট ফাইল</a>` : '<span class="text-slate-500 text-[11px]">কোনো ফাইল নেই</span>'}
+                    </td>
+                    <td class="p-4">
+                        <span class="bg-teal-950 text-teal-300 border border-teal-800 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                            ${item.status || 'প্রসেসিং'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-center space-x-1">
+                        <button onclick="editCase('${item.key}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold">এডিট</button>
+                        <button onclick="deleteCase('${item.key}')" class="bg-rose-900/60 hover:bg-rose-800 text-rose-300 border border-rose-700 px-2.5 py-1 rounded-lg text-xs font-bold">মুছুন</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.openModal = function() {
+            document.getElementById('caseForm').reset();
+            document.getElementById('caseKey').value = '';
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-file-circle-plus text-teal-400"></i> নতুন কেস যোগ করুন`;
+            
+            document.getElementById('refNumber').value = 'REF-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('appId').value = 'APP-2026-' + Math.floor(10 + Math.random() * 90);
+            
+            document.getElementById('caseModal').classList.remove('hidden');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('caseModal').classList.add('hidden');
+        };
+
+        window.saveCaseForm = function(event) {
+            event.preventDefault();
+            const key = document.getElementById('caseKey').value;
+
+            const payload = {
+                applicantName: document.getElementById('applicantName').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                country: document.getElementById('country').value,
+                bankName: document.getElementById('bankName').value,
+                refNumber: document.getElementById('refNumber').value,
+                appId: document.getElementById('appId').value,
+                gameName: document.getElementById('gameName').value,
+                winAmount: parseFloat(document.getElementById('winAmount').value || 0),
+                chargeFee: parseFloat(document.getElementById('chargeFee').value || 0),
+                lastDate: document.getElementById('lastDate').value,
+                expectedDate: document.getElementById('expectedDate').value,
+                status: document.getElementById('status').value,
+                docUrl: document.getElementById('docUrl').value || '',
+                notice: document.getElementById('notice').value,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (key) {
+                set(ref(db, 'cases/' + key), payload)
+                    .then(() => closeModal())
+                    .catch(err => alert('Error saving: ' + err.message));
+            } else {
+                const newCaseRef = push(ref(db, 'cases'));
+                set(newCaseRef, payload)
+                    .then(() => closeModal())
+                    .catch(err => alert('Error saving: ' + err.message));
+            }
+        };
+
+        window.editCase = function(key) {
+            const item = casesCache.find(c => c.key === key);
+            if (!item) return;
+
+            document.getElementById('caseKey').value = item.key;
+            document.getElementById('applicantName').value = item.applicantName || '';
+            document.getElementById('accountNumber').value = item.accountNumber || '';
+            document.getElementById('country').value = item.country || '';
+            document.getElementById('bankName').value = item.bankName || '';
+            document.getElementById('refNumber').value = item.refNumber || '';
+            document.getElementById('appId').value = item.appId || '';
+            document.getElementById('gameName').value = item.gameName || '';
+            document.getElementById('winAmount').value = item.winAmount || '';
+            document.getElementById('chargeFee').value = item.chargeFee || '';
+            document.getElementById('lastDate').value = item.lastDate || '';
+            document.getElementById('expectedDate').value = item.expectedDate || '';
+            document.getElementById('status').value = item.status || 'প্রসেসিং চলছে';
+            document.getElementById('docUrl').value = item.docUrl || '';
+            document.getElementById('notice').value = item.notice || '';
+
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-400"></i> কেস ফাইল এডিট করুন`;
+            document.getElementById('caseModal').classList.remove('hidden');
+        };
+
+        window.deleteCase = function(key) {
+            if (confirm("আপনি কি নিশ্চিত যে এই ফাইলটি ডাটাবেস থেকে মুছে ফেলতে চান?")) {
+                remove(ref(db, 'cases/' + key));
+            }
+        };
+
+        window.filterAdminTable = function() {
+            const q = document.getElementById('adminSearch').value.toLowerCase().trim();
+            const filtered = casesCache.filter(c => 
+                (c.applicantName && c.applicantName.toLowerCase().includes(q)) ||
+                (c.accountNumber && c.accountNumber.toLowerCase().includes(q)) ||
+                (c.appId && c.appId.toLowerCase().includes(q))
+            );
+            renderTable(filtered);
+        };
+    </script>
+</body>
+</html>
